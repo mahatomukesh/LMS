@@ -1,0 +1,10 @@
+@media screen and (max-width: 1199px) {
+  form {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.book-options{
+   text-transform: uppercase;
+}
