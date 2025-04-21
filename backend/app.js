@@ -5,6 +5,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 require("express-async-errors");
 global.StatusCodes = require("http-status-codes").StatusCodes;
+const path = require("path");
 
 const { ConnectDatabase } = require("./database/databaseConnector");
 
@@ -36,7 +37,7 @@ const PageNotFound = require("./errorHandler/PageNotFound");
 // app.use(cors())
 
 // For recieiving httpOnly cookies
-app.use(cors({ credentials: true, origin: "http://localhost:5173" }));
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
 
 app.use(cookieParser());
 
@@ -45,7 +46,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // making uploads folder globally accessable through static routing
-const path = require("path");
+// const path = require("path");
 // const { cookie } = require('express/lib/response')
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
@@ -117,10 +118,16 @@ const QueryRouter = require("./utils/MongoDbQuery");
 app.use("/api/v1/query", QueryRouter);
 
 app.use(CustomError);
+
+// Catch-all route to serve the frontend for any non-API routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+});
+
 app.use(PageNotFound);
 
 // Server
-const port = process.env.CONNECTION_PORT || 3000;
+const port = process.env.PORT || process.env.CONNECTION_PORT || 3000;
 const InitiateServer = async () => {
   try {
     await ConnectDatabase(process.env.CONNECTION_URL);
